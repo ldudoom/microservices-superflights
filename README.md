@@ -1,5 +1,6 @@
 # Microservicios con NestJS
 
+## API-GATEWAY
 Vamos a crear el primero proyecto que será nuestro ***API Gateway***, para eso ejecutamos el siguiente comando
 
 ```bash
@@ -45,3 +46,57 @@ $ npm run start
                🍷  Donate: https://opencollective.com/nest
 ```
 
+### Configuracion de App Modulo del proyecto API Gateway
+
+Vamos a configurar el modulo de nuestra aplicacion y vamos a importar ahi nuestro archivo de variables de entorno
+
+para eso creamos el archivo ***/api-gateway/.env.development*** con la siguiente informacion
+
+##### .env.development
+```bash
+# API
+APP_URL=https://superflights.com
+APP_PORT=3000
+```
+
+Vamos al archivo ***/api-gateway/src/main.ts*** y cambiamos esta linea:
+
+```javascript
+await app.listen(3000);
+```
+
+por esta
+
+```javascript
+await app.listen(process.env.APP_PORT || 3000);
+```
+
+Con esa configuracion le decimos a la aplicacion que si existe la variable de entorno la utilice, caso contrario tome el puerto 3000 por defecto.
+
+Ahora vamos a instalar nestjs config con el siguiente comando:
+
+```bash
+$ npm i @nestjs/config
+```
+
+Y vamos a nuestro archivo ***/api-gateway/src/app.module.ts*** para hacer las importaciones y configuraciones correspondientes para config module, para poder importar el archivo de variables de entorno.
+
+##### src/app.module.ts
+```javascript
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath: ['.env.development'],
+      isGlobal: true
+    })
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
+```
