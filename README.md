@@ -1,6 +1,7 @@
-# Microservicios con NestJS
+# MICROSERVICIOS CON NESTJS
 
 ## API-GATEWAY
+***
 Vamos a crear el primero proyecto que será nuestro ***API Gateway***, para eso ejecutamos el siguiente comando
 
 ```bash
@@ -46,7 +47,10 @@ $ npm run start
                🍷  Donate: https://opencollective.com/nest
 ```
 
-### Configuracion de App Modulo del proyecto API Gateway
+
+
+***
+### CONFIGURACION DE APP MODULE
 
 Vamos a configurar el modulo de nuestra aplicacion y vamos a importar ahi nuestro archivo de variables de entorno
 
@@ -100,3 +104,70 @@ import { AppService } from './app.service';
 })
 export class AppModule {}
 ```
+
+
+***
+### EXCEPCI&Oacute;N GLOBAL
+
+Para esto vamos a crear los directorios:
+- /api-gateway/src/common
+- /api-gateway/src/common/filters
+
+Y dentro del directorio ***/api-gateway/src/common/filters*** vamos a crear el archivo:
+
+- /api-gateway/src/common/filters/http-exceptions.filter.ts
+
+Y colocaremos en este archivo el siguiente codigo:
+
+##### /api-gateway/src/common/filters/http-exceptions.filter.ts
+```javascript
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from "@nestjs/common";
+
+@Catch()
+export class AllHttpExceptionsFilter implements ExceptionFilter
+{
+
+    private readonly logger = new Logger(AllHttpExceptionsFilter.name);
+
+    catch(exception: any, host: ArgumentsHost) {
+        const context = host.switchToHttp();
+        const response = context.getResponse();
+        const request = context.getRequest();
+
+        const status = exception instanceof HttpException 
+                       ? exception.getStatus() 
+                       : HttpStatus.INTERNAL_SERVER_ERROR;
+
+        const message = exception instanceof HttpException
+                        ? exception.getResponse()
+                        : exception;
+
+        this.logger.error(`Status ${status} Error ${JSON.stringify(message)}`);
+
+        response.status(status).json({
+            time: new Date().toISOString(),
+            path: request.url,
+            error: message
+        });
+    }
+
+}
+```
+
+Por ultimo, dejamos al archivo ***/src/main.ts*** como se muestra a continuacion:
+
+##### src/main.ts
+```javascript
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { AllHttpExceptionsFilter } from './common/filters/http-exceptions.filter';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.useGlobalFilters(new AllHttpExceptionsFilter());
+  await app.listen(process.env.APP_PORT || 3000);
+}
+bootstrap();
+```
+
+***
