@@ -51,12 +51,13 @@ $ npm run start
 
 ***
 ### CONFIGURACION DE APP MODULE
+***
 
 Vamos a configurar el modulo de nuestra aplicacion y vamos a importar ahi nuestro archivo de variables de entorno
 
 para eso creamos el archivo ***/api-gateway/.env.development*** con la siguiente informacion
 
-##### .env.development
+##### **.env.development**
 ```bash
 # API
 APP_URL=https://superflights.com
@@ -85,7 +86,7 @@ $ npm i @nestjs/config
 
 Y vamos a nuestro archivo ***/api-gateway/src/app.module.ts*** para hacer las importaciones y configuraciones correspondientes para config module, para poder importar el archivo de variables de entorno.
 
-##### src/app.module.ts
+##### **src/app.module.ts**
 ```javascript
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -108,6 +109,7 @@ export class AppModule {}
 
 ***
 ### EXCEPCI&Oacute;N GLOBAL
+***
 
 Para esto vamos a crear los directorios:
 - /api-gateway/src/common
@@ -119,7 +121,7 @@ Y dentro del directorio ***/api-gateway/src/common/filters*** vamos a crear el a
 
 Y colocaremos en este archivo el siguiente codigo:
 
-##### /api-gateway/src/common/filters/http-exceptions.filter.ts
+##### **api-gateway/src/common/filters/http-exceptions.filter.ts**
 ```javascript
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from "@nestjs/common";
 
@@ -156,7 +158,7 @@ export class AllHttpExceptionsFilter implements ExceptionFilter
 
 Por ultimo, dejamos al archivo ***/src/main.ts*** como se muestra a continuacion:
 
-##### src/main.ts
+##### **api-gateway/src/main.ts**
 ```javascript
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
@@ -169,5 +171,34 @@ async function bootstrap() {
 }
 bootstrap();
 ```
+***
+### INTERCEPTOR GLOBAL
+***
+Ahora vamos a implementar el interceptor global, para eso vamos a realizar la siguiente configuración:
 
+Primero vamos a crear el siguiente directorio:
+
+- /api-gateway/src/common/interceptors
+
+Ahora vamos a crear el archivo 
+
+- /api-gateway/src/common/interceptors/timeout.interceptor.ts
+
+y colocaremos el siguiente codigo dentro de este archivo
+
+##### **api-gateway/src/common/interceptors/timeout.interceptor.ts**
+```javascript
+import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from "@nestjs/common";
+import { Observable } from "rxjs";
+import { timeout } from 'rxjs/operators';
+
+@Injectable()
+export class TimeoutInterceptor implements NestInterceptor
+{
+    intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> | Promise<Observable<any>> {
+        return next.handle().pipe(timeout(120000));
+    }
+
+}
+```
 ***
