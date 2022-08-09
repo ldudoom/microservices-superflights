@@ -201,4 +201,40 @@ export class TimeoutInterceptor implements NestInterceptor
 
 }
 ```
+
+Por último, configuramos este interceptor en nuestro ***main.js***
+##### **api-gateway/src/main.ts**
+```javascript
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { AllHttpExceptionsFilter } from './common/filters/http-exceptions.filter';
+import { TimeoutInterceptor } from './common/interceptors/timeout.interceptor';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.useGlobalFilters(new AllHttpExceptionsFilter());
+  app.useGlobalInterceptors(new TimeoutInterceptor());
+  await app.listen(process.env.APP_PORT || 3000);
+}
+bootstrap();
+```
+***
+
+### INSTALACION DE DEPENDENCIAS
+***
+Ahora vamos a instalar las dependencias necesarias construir nuestro **API GATEWAY**.
+
+Las dependencias que vamos a instalar son:
+
+- amqplib -> Para utilizar RabbitMQ
+- amqp-connection-manager
+- class-validator
+- class-transformer 
+- @nestjs/microservices
+
+```bash
+$ npm i amqplib amqp-connection-manager class-validator class-transformer @nestjs/microservices
+```
+
+
 ***
