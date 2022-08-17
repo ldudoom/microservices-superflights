@@ -231,10 +231,68 @@ Las dependencias que vamos a instalar son:
 - class-validator
 - class-transformer 
 - @nestjs/microservices
+- @nestjs/swagger
 
 ```bash
-$ npm i amqplib amqp-connection-manager class-validator class-transformer @nestjs/microservices
+$ npm i amqplib amqp-connection-manager class-validator class-transformer @nestjs/microservices@8.4.7 @nestjs/swagger@^5.2.1
+```
+***
+
+### Estructura del Modulo
+***
+Ahora vamos a crear la estructura del modulo de usuario, y para eso nos vamos a ayudar del CLI de Nest
+
+Primero creamos el modulo
+```bash
+$ npx nest g mo user
 ```
 
+Ahora vamos a crear el controlador
+```bash
+$ npx nest g co user
+```
+
+A continuación vamos a cambiar la ruta por defecto del controlador de:
+
+```javascript
+@Controller('user')
+```
+
+a:
+
+```javascript
+@Controller('api/v2/user')
+```
+
+Lo siguiente es crear el archivo DTO, para eso vamos a crear el directorio **"/api-gateway/src/user/dto"** y dentro creamos el archivo ***user.dto.ts*** con el siguiente código:
+
+##### api-gateway/src/user/dto/user.dto.ts
+```javascript
+import {ApiProperty} from '@nestjs/swagger';
+import {IsEmail, IsNotEmpty, IsIstring} from 'class-validator';
+
+export class UserDTO {
+
+}
+```
+
+***
+
+
+### INSTALACION Y CONFIGURACION DE RABBITMQ
+***
+Ahora vamos a configurar RabbitMQ en nuestra aplicación api-gateway, para esto vamos a configurar un modulo **proxy** que manejara la conexión al servicio de RabbitMQ.
+
+- Creamos el directorio ***/api-gateway/src/common/proxy***
+- Creamos dentro de ***proxy*** los archivos 
+  + client-proxy.ts
+  + proxy.module.ts
+
+Y vamos a configurar el client-proxy colocando el siguiente código dentro de este archivo
+
+##### api-gateway/src/common/proxy/client-proxy.ts
+```javascript
+
+```
 
 ***
